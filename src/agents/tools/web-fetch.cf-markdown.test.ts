@@ -134,7 +134,7 @@ describe("web_fetch Cloudflare Markdown for Agents", () => {
 
     const tool = createWebFetchTool(baseToolConfig);
 
-    await tool?.execute?.("call", { url: "https://example.com/tokens/private?token=example" });
+    await tool?.execute?.("call", { url: "https://example.com/tokens/private?token=example" }); // pragma: allowlist secret
 
     expect(logSpy).toHaveBeenCalledWith(
       expect.stringContaining("x-markdown-tokens: 1500 (https://example.com/...)"),
