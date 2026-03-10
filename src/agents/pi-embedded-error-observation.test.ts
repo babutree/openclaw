@@ -29,20 +29,20 @@ describe("buildApiErrorObservationFields", () => {
 
   it("forces token redaction for observation previews", () => {
     const observed = buildApiErrorObservationFields(
-      "Authorization: Bearer sk-abcdefghijklmnopqrstuvwxyz123456",
+      "Authorization: Bearer sk-abc-TEST-NOT-REAL-0000", // pragma: allowlist secret
     );
 
-    expect(observed.rawErrorPreview).not.toContain("sk-abcdefghijklmnopqrstuvwxyz123456");
+    expect(observed.rawErrorPreview).not.toContain("sk-abc-TEST-NOT-REAL-0000");
     expect(observed.rawErrorPreview).toContain("sk-abc");
     expect(observed.rawErrorHash).toMatch(/^sha256:/);
   });
 
   it("redacts observation-only header and cookie formats", () => {
     const observed = buildApiErrorObservationFields(
-      "x-api-key: sk-abcdefghijklmnopqrstuvwxyz123456 Cookie: session=abcdefghijklmnopqrstuvwxyz123456",
+      "x-api-key: sk-abc-TEST-NOT-REAL-0000 Cookie: session=session-TEST-NOT-REAL-0000", // pragma: allowlist secret
     );
 
-    expect(observed.rawErrorPreview).not.toContain("abcdefghijklmnopqrstuvwxyz123456");
+    expect(observed.rawErrorPreview).not.toContain("session-TEST-NOT-REAL-0000");
     expect(observed.rawErrorPreview).toContain("x-api-key: ***");
     expect(observed.rawErrorPreview).toContain("Cookie: session=");
   });
