@@ -6,6 +6,9 @@ import {
   sanitizeForConsole,
 } from "./pi-embedded-error-observation.js";
 
+const OBSERVATION_BEARER_TOKEN = "sk-redact-test-token";
+const OBSERVATION_COOKIE_VALUE = "session-cookie-token";
+
 afterEach(() => {
   vi.restoreAllMocks();
 });
@@ -49,7 +52,7 @@ describe("buildApiErrorObservationFields", () => {
 
   it("does not let cookie redaction consume unrelated fields on the same line", () => {
     const observed = buildApiErrorObservationFields(
-      "Cookie: session=abcdefghijklmnopqrstuvwxyz123456 status=503 request_id=req_cookie",
+      `Cookie: session=${OBSERVATION_COOKIE_VALUE} status=503 request_id=req_cookie`,
     );
 
     expect(observed.rawErrorPreview).toContain("Cookie: session=");
