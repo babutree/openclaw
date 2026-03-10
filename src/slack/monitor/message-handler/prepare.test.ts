@@ -571,6 +571,30 @@ describe("slack prepareSlackMessage inbound contract", () => {
     expect(prepared!.ctxPayload.MessageThreadId).toBe("500.000");
   });
 
+  it("preserves pinned owner route on main-scoped DMs", async () => {
+    const { storePath } = makeTmpStorePath();
+    const slackCtx = createInboundSlackCtx({
+      cfg: {
+        session: { store: storePath, dmScope: "main" },
+        channels: { slack: { enabled: true } },
+      } as OpenClawConfig,
+    });
+    // Treat this as a DM.
+    slackCtx.resolveChannelName = async () => ({ name: undefined, type: "im" as const });
+    // Pin a single owner (UOWNER) and simulate a non-owner sender (UOTHER).
+    slackCtx.allowFrom = ["slack:UOWNER"];
+
+    const message = createSlackMessage({ channel: "D0ACP6B1T8V", user: "UOTHER", ts: "600.000" });
+    const prepared = await prepareMessageWith(slackCtx, createSlackAccount(), message);
+
+    expect(prepared).toBeTruthy();
+    const store = JSON.parse(fs.readFileSync(storePath, "utf8"));
+    const entry = store["agent:main:main"];
+    expect(entry).toBeTruthy();
+    // Non-owner sender should not be able to set the main-session DM delivery route.
+    expect(entry.deliveryContext?.to).not.toBe("user:UOTHER");
+  });
+
   it("persists channel delivery route for top-level channel sessions", async () => {
     const { storePath } = makeTmpStorePath();
     const slackCtx = createReplyToAllSlackCtx({
